@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <base href="/puchi/" />
+  <title>ぷちぷち</title>
+  <meta name="description" content="丸い泡とハートの泡を、そっとつぶせるぷちぷち。" />
+  <meta name="theme-color" content="#fff4f8" />
+  <meta name="color-scheme" content="light" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="ぷちぷち" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="canonical" href="https://ajhtime.github.io/puchi/" />
+  <link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preload" as="image" href="break/bubble-round-before.webp" />
+  <link rel="preload" as="image" href="break/bubble-round-after.webp" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ja_JP" />
+  <meta property="og:site_name" content="ぷちぷち" />
+  <meta property="og:title" content="ぷちぷち" />
+  <meta property="og:description" content="丸い泡とハートの泡を、そっとつぶせるぷちぷち。" />
+  <meta property="og:url" content="https://ajhtime.github.io/puchi/" />
+  <meta property="og:image" content="https://ajhtime.github.io/puchi/puchi-ogp.png" />
+  <meta property="og:image:secure_url" content="https://ajhtime.github.io/puchi/puchi-ogp.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ぷちぷち" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ぷちぷち" />
+  <meta name="twitter:description" content="丸い泡とハートの泡を、そっとつぶせるぷちぷち。" />
+  <meta name="twitter:image" content="https://ajhtime.github.io/puchi/puchi-ogp.png" />
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #5c4652;
+      --muted: #6f5560;
+      --pink: #ff7b9c;
+      --pink-deep: #e25684;
+      --paper: #fff4f8;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      color: var(--ink);
+      font-family: "Hiragino Maru Gothic ProN", "Hiragino Maru Gothic Pro", "YuGothic", "Yu Gothic Medium", "Yu Gothic", "Meiryo", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(900px 420px at 50% -10%, #ffe3ef 0%, transparent 70%),
+        linear-gradient(180deg, #fff7fb 0%, #f3f7ff 100%);
+    }
+
+    button, input { font: inherit; color: inherit; }
+
+    button { cursor: pointer; }
+
+    :focus-visible {
+      outline: 3px solid #ff9bb6;
+      outline-offset: 3px;
+    }
+
+    /* iPhone では、このスイッチを押した瞬間に切り替えると本体の振動が鳴ることがある。
+       画面には出さない。display:none にすると振動が鳴らない。 */
+    #ios-haptic-switch {
+      position: fixed;
+      left: 0;
+      top: 0;
+      margin: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .app {
+      width: min(480px, 100%);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding:
+        max(10px, env(safe-area-inset-top))
+        max(12px, env(safe-area-inset-right))
+        max(8px, env(safe-area-inset-bottom))
+        max(12px, env(safe-area-inset-left));
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.55rem;
+      line-height: 1;
+      letter-spacing: 0.06em;
+      color: var(--pink-deep);
+    }
+
+    .shapes {
+      display: flex;
+      padding: 4px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(214, 120, 150, 0.16);
+    }
+
+    .shapes button {
+      border: 0;
+      background: transparent;
+      color: #a07a88;
+      font-weight: 800;
+      min-width: 64px;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+    }
+
+    .shapes button[aria-pressed="true"] {
+      background: var(--pink);
+      color: #fff;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .speaker {
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--pink-deep);
+      box-shadow: 0 8px 18px rgba(214, 120, 150, 0.22);
+    }
+
+    .speaker[aria-pressed="true"] {
+      background: var(--pink);
+      color: #fff;
+    }
+
+    .speaker svg { width: 34px; height: 34px; display: block; }
+    .speaker .icon-on { display: none; }
+    .speaker[aria-pressed="true"] .icon-off { display: none; }
+    .speaker[aria-pressed="true"] .icon-on { display: block; }
+    .speaker:active { transform: scale(0.96); }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 44px;
+      margin: 0;
+      background: transparent;
+    }
+
+    .controls.is-muted input[type="range"] { opacity: 0.5; }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pink) var(--pct, 80%), #ffd0e0 var(--pct, 80%));
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      margin-top: -10px;
+      border: 3px solid var(--pink);
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(180, 100, 130, 0.25);
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 8px;
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pink) var(--pct, 80%), #ffd0e0 var(--pct, 80%));
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--pink);
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .haptic {
+      border: 0;
+      height: 48px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: #fff;
+      color: #b7a0a8;
+      font-weight: 800;
+      font-size: 0.92rem;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(214, 120, 150, 0.14);
+    }
+
+    .haptic[aria-pressed="true"] {
+      background: #ffe3ee;
+      color: var(--pink-deep);
+    }
+
+    .status {
+      margin: 8px 0 0;
+      min-height: 1.4em;
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #8a6574;
+    }
+
+    .status.is-done { color: var(--pink-deep); }
+
+    .stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 0;
+      container-type: size;
+    }
+
+    .sheet {
+      position: relative;
+      width: min(100cqw, calc(100cqh * 571 / 872));
+      aspect-ratio: 571 / 872;
+      border-radius: 22px;
+      overflow: hidden;
+      touch-action: none;
+      background: #f6f6f7;
+      box-shadow: 0 14px 34px rgba(214, 130, 160, 0.18);
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .base, .all-after {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .bubbles { position: absolute; inset: 0; z-index: 1; }
+
+    .all-after {
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 180ms linear;
+    }
+
+    .sheet.is-done .all-after { opacity: 1; }
+
+    .bubble { position: absolute; }
+
+    .bubble .pop {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .sheet[data-shape="round"] .pop {
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .sheet[data-shape="heart"] .pop {
+      clip-path: url("#heart-clip");
+    }
+
+    .pop img {
+      position: absolute;
+      max-width: none;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .bubble.is-popped .pop {
+      opacity: 1;
+      animation: pop-in 150ms ease-out;
+    }
+
+    @keyframes pop-in {
+      0% { transform: scale(0.84); }
+      45% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    footer {
+      min-height: 78px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    #again {
+      appearance: none;
+      border: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 0 28px;
+      border-radius: 999px;
+      background: var(--pink);
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.08rem;
+      letter-spacing: 0.06em;
+      box-shadow: 0 8px 18px rgba(255, 123, 156, 0.35);
+    }
+
+    #again[hidden] { display: none; }
+    #again:active { transform: scale(0.98); }
+
+    footer:has(#again:not([hidden])) .note { display: none; }
+
+    .note {
+      margin: 0;
+      max-width: 28em;
+      text-align: center;
+      font-size: 0.72rem;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bubble.is-popped .pop { animation: none; }
+      .all-after { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <input id="ios-haptic-switch" type="checkbox" switch tabindex="-1" aria-hidden="true" autocomplete="off" />
+  <svg width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id="heart-clip" clipPathUnits="objectBoundingBox">
+        <path d="M0.50 0.97 C0.20 0.74 0.02 0.58 0.02 0.38 C0.02 0.16 0.18 0.02 0.35 0.07 C0.45 0.11 0.49 0.20 0.50 0.27 C0.51 0.20 0.55 0.11 0.65 0.07 C0.82 0.02 0.98 0.16 0.98 0.38 C0.98 0.58 0.80 0.74 0.50 0.97 Z" />
+      </clipPath>
+    </defs>
+  </svg>
+  <div class="app">
+    <header>
+      <div class="title-row">
+        <h1>ぷちぷち</h1>
+        <div class="shapes" role="group" aria-label="泡のかたち">
+          <button type="button" id="shape-round" data-shape="round" aria-pressed="true">丸</button>
+          <button type="button" id="shape-heart" data-shape="heart" aria-pressed="false">ハート</button>
+        </div>
+      </div>
+      <div class="controls" id="controls">
+        <button type="button" id="mute" class="speaker" aria-pressed="false" aria-label="音を出す">
+          <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M3.2 9.4h3.1L10 6.1v11.8l-3.7-3.3H3.2V9.4z" />
+            <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M15 9.2l5.2 5.6M20.2 9.2L15 14.8" />
+          </svg>
+          <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M3.2 9.4h3.1L10 6.1v11.8l-3.7-3.3H3.2V9.4z" />
+            <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M14.2 9a3.6 3.6 0 0 1 0 6M16.8 6.8a6.6 6.6 0 0 1 0 10.4" />
+          </svg>
+        </button>
+        <input id="volume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="音量" />
+        <button type="button" id="haptic" class="haptic" aria-pressed="true">振動オン</button>
+      </div>
+    </header>
+    <p class="status" id="status">すきなところから、つぶしてみて</p>
+    <div class="stage">
+      <div class="sheet" id="sheet" data-shape="round" aria-label="ぷちぷちの泡">
+        <img class="base" id="base" alt="" draggable="false" src="break/bubble-round-before.webp" width="571" height="872" />
+        <div class="bubbles" id="bubbles"></div>
+        <img class="all-after" id="all-after" alt="" draggable="false" src="break/bubble-round-after.webp" width="571" height="872" />
+      </div>
+    </div>
+    <footer>
+      <button type="button" id="again" hidden>もう一回</button>
+      <p class="note">iPhoneでは、振動が届かないことがあります。</p>
+    </footer>
+  </div>
+  <noscript>
+    <p class="note">泡を押して遊ぶために、JavaScript をオンにしてください。</p>
+  </noscript>
+  <script>
+    const IMG_W = 571;
+    const IMG_H = 872;
+    const KEY_MUTED = "puchi-muted";
+    const KEY_VOLUME = "puchi-volume";
+    const KEY_HAPTIC = "puchi-haptic";
+
+    const SHAPES = {
+      round: {
+        before: "break/bubble-round-before.webp",
+        after: "break/bubble-round-after.webp",
+        clip: "circle",
+        radius: 58,
+        hit: 74,
+        centers: [
+          [-19, 45], [105, 45], [231, 45], [356, 45], [482, 45], [606, 45],
+          [42, 157], [168, 156], [293, 157], [418, 157], [543, 159],
+          [-20, 269], [105, 269], [230, 269], [355, 269], [480, 270], [605, 269],
+          [41, 382], [166, 382], [291, 382], [416, 382], [541, 384],
+          [-22, 494], [104, 494], [229, 494], [353, 494], [477, 495], [603, 494],
+          [41, 607], [166, 607], [290, 606], [414, 606], [539, 608],
+          [-24, 718], [103, 719], [228, 718], [351, 719], [475, 719], [602, 718],
+          [42, 829], [165, 830], [289, 829], [412, 830], [537, 831]
+        ]
+      },
+      heart: {
+        before: "break/bubble-heart-before.webp",
+        after: "break/bubble-heart-after.webp",
+        clip: "heart",
+        box: [126, 114],
+        hit: 76,
+        centers: [
+          [2, 60], [143, 54], [285, 54], [427, 54], [567, 60],
+          [4, 187], [145, 187], [286, 187], [427, 187], [568, 187],
+          [76, 314], [216, 314], [357, 314], [498, 314],
+          [5, 440], [146, 440], [287, 439], [427, 439], [568, 440],
+          [77, 564], [217, 564], [357, 563], [498, 562],
+          [16, 678], [147, 687], [287, 687], [427, 686], [568, 687],
+          [77, 814], [218, 811], [357, 812], [498, 811]
+        ]
+      }
+    };
+
+    const sheet = document.getElementById("sheet");
+    const bubblesEl = document.getElementById("bubbles");
+    const base = document.getElementById("base");
+    const allAfter = document.getElementById("all-after");
+    const statusEl = document.getElementById("status");
+    const again = document.getElementById("again");
+    const controls = document.getElementById("controls");
+    const muteButton = document.getElementById("mute");
+    const volumeInput = document.getElementById("volume");
+    const hapticButton = document.getElementById("haptic");
+    const shapeRound = document.getElementById("shape-round");
+    const shapeHeart = document.getElementById("shape-heart");
+
+    const state = { shape: "round", muted: true, volume: 0.8, haptic: true };
+    let bubbles = [];
+    let audioCtx = null;
+    let master = null;
+    let noiseBuffers = [];
+    let noiseCursor = 0;
+    const pointers = new Map();
+
+    function readStore(key) {
+      try { return localStorage.getItem(key); } catch (error) { return null; }
+    }
+
+    function writeStore(key, value) {
+      try { localStorage.setItem(key, value); } catch (error) {}
+    }
+
+    function onSheet(x, y, reach) {
+      const visibleW = Math.min(IMG_W, x + reach) - Math.max(0, x - reach);
+      const visibleH = Math.min(IMG_H, y + reach) - Math.max(0, y - reach);
+      return visibleW >= 32 && visibleH >= 32;
+    }
+
+    function loadSettings() {
+      const mutedRaw = readStore(KEY_MUTED);
+      state.muted = mutedRaw == null ? true : mutedRaw === "1";
+      const volumeStored = readStore(KEY_VOLUME);
+      const volumeRaw = volumeStored == null || volumeStored === "" ? NaN : Number(volumeStored);
+      state.volume = Number.isFinite(volumeRaw) ? Math.min(1, Math.max(0, volumeRaw)) : 0.8;
+      volumeInput.value = String(state.volume);
+      paintSlider();
+      const hapticRaw = readStore(KEY_HAPTIC);
+      state.haptic = hapticRaw == null ? true : hapticRaw === "1";
+    }
+
+    function saveSound() {
+      writeStore(KEY_MUTED, state.muted ? "1" : "0");
+      writeStore(KEY_VOLUME, String(Math.round(state.volume * 100) / 100));
+    }
+
+    function saveHaptic() {
+      writeStore(KEY_HAPTIC, state.haptic ? "1" : "0");
+    }
+
+    function paintSlider() {
+      volumeInput.style.setProperty("--pct", (state.volume * 100) + "%");
+    }
+
+    function syncSoundUi() {
+      muteButton.setAttribute("aria-pressed", state.muted ? "false" : "true");
+      muteButton.setAttribute("aria-label", state.muted ? "音を出す" : "音を消す");
+      controls.classList.toggle("is-muted", state.muted);
+      paintSlider();
+    }
+
+    function syncHapticUi() {
+      hapticButton.setAttribute("aria-pressed", state.haptic ? "true" : "false");
+      hapticButton.textContent = state.haptic ? "振動オン" : "振動オフ";
+    }
+
+    function ensureAudio() {
+      if (audioCtx) return audioCtx;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioCtx();
+      master = audioCtx.createGain();
+      master.gain.value = state.muted ? 0 : state.volume;
+      const comp = audioCtx.createDynamicsCompressor();
+      comp.threshold.value = -14;
+      comp.knee.value = 8;
+      comp.ratio.value = 4;
+      comp.attack.value = 0.002;
+      comp.release.value = 0.08;
+      master.connect(comp);
+      comp.connect(audioCtx.destination);
+      const rate = audioCtx.sampleRate;
+      for (let n = 0; n < 5; n += 1) {
+        const length = Math.floor(rate * 0.065);
+        const buffer = audioCtx.createBuffer(1, length, rate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < length; i += 1) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.2);
+        }
+        noiseBuffers.push(buffer);
+      }
+      return audioCtx;
+    }
+
+    function applyGain() {
+      if (!master) return;
+      master.gain.value = state.muted ? 0 : state.volume;
+    }
+
+    function playPop() {
+      if (state.muted || state.volume <= 0.001) return;
+      const ctx = ensureAudio();
+      if (ctx.state === "suspended") ctx.resume();
+      applyGain();
+      const now = ctx.currentTime;
+      const buffer = noiseBuffers[noiseCursor % noiseBuffers.length];
+      noiseCursor += 1;
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      noise.playbackRate.value = 0.88 + Math.random() * 0.36;
+      const filter = ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.value = 1100 + Math.random() * 1000;
+      filter.Q.value = 0.55;
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.9, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(master);
+      noise.start(now);
+      noise.stop(now + 0.07);
+
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(460 + Math.random() * 280, now);
+      osc.frequency.exponentialRampToValueAtTime(130, now + 0.05);
+      const oscGain = ctx.createGain();
+      oscGain.gain.setValueAtTime(0.26, now);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      osc.connect(oscGain);
+      oscGain.connect(master);
+      osc.start(now);
+      osc.stop(now + 0.06);
+    }
+
+    function isIos() {
+      const ua = navigator.userAgent || "";
+      if (/iPad|iPhone|iPod/.test(ua)) return true;
+      return navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+    }
+
+    function buzz() {
+      if (!state.haptic) return;
+      if (isIos()) {
+        document.getElementById("ios-haptic-switch").click();
+        return;
+      }
+      if (typeof navigator.vibrate === "function") {
+        try { navigator.vibrate(12); } catch (error) {}
+      }
+    }
+
+    function placeBubble(el, shape, x, y) {
+      const bw = shape.clip === "circle" ? shape.radius * 2 : shape.box[0];
+      const bh = shape.clip === "circle" ? shape.radius * 2 : shape.box[1];
+      el.style.left = ((x - bw / 2) / IMG_W) * 100 + "%";
+      el.style.top = ((y - bh / 2) / IMG_H) * 100 + "%";
+      el.style.width = (bw / IMG_W) * 100 + "%";
+      el.style.height = (bh / IMG_H) * 100 + "%";
+      const img = el.querySelector("img");
+      img.style.width = (IMG_W / bw) * 100 + "%";
+      img.style.height = (IMG_H / bh) * 100 + "%";
+      img.style.left = ((-(x - bw / 2)) / bw) * 100 + "%";
+      img.style.top = ((-(y - bh / 2)) / bh) * 100 + "%";
+    }
+
+    function refreshStatus() {
+      const popped = bubbles.reduce((count, bubble) => count + (bubble.popped ? 1 : 0), 0);
+      if (popped === 0) {
+        statusEl.textContent = "すきなところから、つぶしてみて";
+        statusEl.classList.remove("is-done");
+        sheet.classList.remove("is-done");
+        again.hidden = true;
+        return;
+      }
+      if (popped === bubbles.length) {
+        statusEl.textContent = "ぜんぶつぶせたよ";
+        statusEl.classList.add("is-done");
+        sheet.classList.add("is-done");
+        again.hidden = false;
+        return;
+      }
+      statusEl.textContent = "いい感じだよ";
+      statusEl.classList.remove("is-done");
+      sheet.classList.remove("is-done");
+      again.hidden = true;
+    }
+
+    function build() {
+      const shape = SHAPES[state.shape];
+      base.src = shape.before;
+      allAfter.src = shape.after;
+      bubblesEl.replaceChildren();
+      bubbles = [];
+      for (const [x, y] of shape.centers) {
+        if (!onSheet(x, y, shape.hit)) continue;
+        const el = document.createElement("div");
+        el.className = "bubble";
+        const pop = document.createElement("div");
+        pop.className = "pop";
+        const img = document.createElement("img");
+        img.alt = "";
+        img.draggable = false;
+        img.src = shape.after;
+        pop.appendChild(img);
+        el.appendChild(pop);
+        placeBubble(el, shape, x, y);
+        bubblesEl.appendChild(el);
+        bubbles.push({ x, y, el, popped: false });
+      }
+      refreshStatus();
+    }
+
+    function popBubble(bubble) {
+      if (!bubble || bubble.popped) return;
+      bubble.popped = true;
+      bubble.el.classList.add("is-popped");
+      try { playPop(); } catch (error) {}
+      try { buzz(); } catch (error) {}
+      refreshStatus();
+    }
+
+    function popAt(clientX, clientY) {
+      const rect = sheet.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+      const x = ((clientX - rect.left) / rect.width) * IMG_W;
+      const y = ((clientY - rect.top) / rect.height) * IMG_H;
+      const reach = SHAPES[state.shape].hit;
+      let best = null;
+      let bestDist = reach;
+      for (const bubble of bubbles) {
+        if (bubble.popped) continue;
+        const dist = Math.hypot(bubble.x - x, bubble.y - y);
+        if (dist <= bestDist) {
+          best = bubble;
+          bestDist = dist;
+        }
+      }
+      popBubble(best);
+    }
+
+    function popAlong(x0, y0, x1, y1) {
+      const dist = Math.hypot(x1 - x0, y1 - y0);
+      const steps = Math.max(1, Math.ceil(dist / 14));
+      for (let i = 1; i <= steps; i += 1) {
+        const t = i / steps;
+        popAt(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t);
+      }
+    }
+
+    sheet.addEventListener("pointerdown", (event) => {
+      if (event.target.closest("button")) return;
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      event.preventDefault();
+      try { sheet.setPointerCapture(event.pointerId); } catch (error) {}
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      popAt(event.clientX, event.clientY);
+    });
+
+    sheet.addEventListener("pointermove", (event) => {
+      const prev = pointers.get(event.pointerId);
+      if (!prev) return;
+      popAlong(prev.x, prev.y, event.clientX, event.clientY);
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    });
+
+    function endPointer(event) {
+      pointers.delete(event.pointerId);
+    }
+
+    sheet.addEventListener("pointerup", endPointer);
+    sheet.addEventListener("pointercancel", endPointer);
+    sheet.addEventListener("contextmenu", (event) => event.preventDefault());
+
+    shapeRound.addEventListener("click", () => {
+      if (state.shape === "round") return;
+      state.shape = "round";
+      shapeRound.setAttribute("aria-pressed", "true");
+      shapeHeart.setAttribute("aria-pressed", "false");
+      sheet.dataset.shape = "round";
+      build();
+    });
+
+    shapeHeart.addEventListener("click", () => {
+      if (state.shape === "heart") return;
+      state.shape = "heart";
+      shapeHeart.setAttribute("aria-pressed", "true");
+      shapeRound.setAttribute("aria-pressed", "false");
+      sheet.dataset.shape = "heart";
+      build();
+    });
+
+    again.addEventListener("click", () => build());
+
+    muteButton.addEventListener("click", () => {
+      state.muted = !state.muted;
+      if (!state.muted && state.volume <= 0) {
+        state.volume = 0.8;
+        volumeInput.value = "0.8";
+      }
+      saveSound();
+      syncSoundUi();
+      if (!state.muted) {
+        const ctx = ensureAudio();
+        if (ctx.state === "suspended") ctx.resume();
+        applyGain();
+        try { playPop(); } catch (error) {}
+      } else {
+        applyGain();
+      }
+    });
+
+    volumeInput.addEventListener("input", () => {
+      state.volume = Number(volumeInput.value);
+      if (state.volume > 0 && state.muted) state.muted = false;
+      if (state.volume === 0) state.muted = true;
+      saveSound();
+      syncSoundUi();
+      applyGain();
+      paintSlider();
+    });
+
+    volumeInput.addEventListener("change", () => {
+      if (state.muted || state.volume <= 0) return;
+      const ctx = ensureAudio();
+      if (ctx.state === "suspended") ctx.resume();
+      try { playPop(); } catch (error) {}
+    });
+
+    hapticButton.addEventListener("click", () => {
+      state.haptic = !state.haptic;
+      saveHaptic();
+      syncHapticUi();
+      if (state.haptic) buzz();
+    });
+
+    for (const shape of Object.values(SHAPES)) {
+      for (const src of [shape.before, shape.after]) {
+        const img = new Image();
+        img.decoding = "async";
+        img.src = src;
+      }
+    }
+
+    loadSettings();
+    syncSoundUi();
+    syncHapticUi();
+    build();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/puchi/sw.js", { scope: "/puchi/" }).catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
